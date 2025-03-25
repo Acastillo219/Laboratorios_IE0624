@@ -31,3 +31,28 @@ int dado_virtual(void) {
     int n = siguiente() & 0x07; // Limita el rango a 0–7
     return (n == 0 || n > 6) ? dado_virtual() : n; // Reintenta si está fuera del rango 1–6
 }
+
+void main(void) {
+    // Configura GP5 como entrada (botón), el resto como salidas (LEDs)
+    TRISIO = 0b00100000;
+    GPIO = 0x00; // Apaga todos los LEDs al inicio
+    const unsigned int retardo = 200; // Tiempo base de espera
+
+    while (1) {
+        if (GP5) { // Si se presiona el botón (GP5 en alto)
+            switch (dado_virtual()) {
+                case 1: GP1 = 1; esperar(retardo); GP1 = 0; break;             // Enciende LED en GP1
+                case 2: GP0 = 1; esperar(retardo); GP0 = 0; break;             // Enciende LED en GP0
+                case 3: GPIO = 0b00000011; break;                              // Enciende GP0 y GP1
+                case 4: GPIO = 0b00000101; break;                              // Enciende GP0 y GP2
+                case 5: GPIO = 0b00000111; break;                              // Enciende GP0, GP1 y GP2
+                case 6: GPIO = 0b00010101; break;                              // Enciende GP0, GP2 y GP4
+            }
+            // Apaga todos los LEDs luego del retardo, para los casos con varios LEDs
+            if (GP5 != 1 || GPIO) { esperar(retardo); GPIO = 0; }
+        } else {
+            GPIO = 0; // Apaga los LEDs si el botón no está presionado
+        }
+    }
+}
+
