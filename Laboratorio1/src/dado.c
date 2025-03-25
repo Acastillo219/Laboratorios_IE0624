@@ -25,3 +25,9 @@ uint8_t siguiente(void) {
     estado[1] = rotar_izq(estado[1], 3);
     return r;
 }
+
+// Devuelve un número aleatorio entre 1 y 6, simulando el lanzamiento de un dado
+int dado_virtual(void) {
+    int n = siguiente() & 0x07; // Limita el rango a 0–7
+    return (n == 0 || n > 6) ? dado_virtual() : n; // Reintenta si está fuera del rango 1–6
+}
